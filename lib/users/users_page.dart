@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:navigator_2_example/users/user.dart';
+import 'package:flow_builder/flow_builder.dart';
+import 'package:navigator_2_example/users/users_navigator.dart';
 
 class UsersPage extends StatelessWidget {
-  final Function(User user) userPressed;
   final List<User> users;
 
   const UsersPage({
     Key key,
     this.users,
-    this.userPressed,
   }) : super(key: key);
 
   @override
@@ -21,7 +21,6 @@ class UsersPage extends StatelessWidget {
         children: users
             .map((user) => UserWidget(
                   user: user,
-                  onPressed: () => userPressed(user),
                 ))
             .toList(),
       ),
@@ -30,19 +29,24 @@ class UsersPage extends StatelessWidget {
 }
 
 class UserWidget extends StatelessWidget {
-  final VoidCallback onPressed;
   final User user;
 
   const UserWidget({
     Key key,
     this.user,
-    this.onPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FlatButton(
-      onPressed: onPressed,
+      onPressed: () {
+        context.flow<UsersState>().update(
+              (state) => UsersState(
+                state.users,
+                selectedUser: user,
+              ),
+            );
+      },
       child: Container(
         alignment: Alignment.center,
         height: 200,
