@@ -1,56 +1,45 @@
+import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:navigator_2_example/users/user.dart';
 import 'package:navigator_2_example/users/user_details_page.dart';
 import 'package:navigator_2_example/users/users_page.dart';
 
-class UsersNavigator extends StatefulWidget {
-  const UsersNavigator({Key key}) : super(key: key);
+class UsersState {
+  final List<User> users;
+  final User selectedUser;
 
-  @override
-  _UsersNavigatorState createState() => _UsersNavigatorState();
+  UsersState(
+    this.users, {
+    this.selectedUser,
+  });
 }
 
-class _UsersNavigatorState extends State<UsersNavigator> {
-  User _selectedUser;
-  List<User> _users = [
-    User('Tommy'),
-    User('Arthur'),
-    User('John'),
-  ];
+class UsersNavigator extends StatelessWidget {
+  const UsersNavigator({Key key}) : super(key: key);
 
-  @override
   Widget build(BuildContext context) {
-    return Navigator(
-      pages: [
-        MaterialPage(
-          key: ValueKey('UsersPage'),
-          child: UsersPage(
-            users: _users,
-            userPressed: _userPressed,
-          ),
-        ),
-        if (_selectedUser != null)
+    return FlowBuilder<UsersState>(
+      state: UsersState([
+        User('Tommy'),
+        User('Arthur'),
+        User('John'),
+      ]),
+      onGeneratePages: (state, pages) {
+        final selectedUser = state.selectedUser;
+        return [
           MaterialPage(
-            key: ValueKey(_selectedUser),
-            child: UserDetailsPage(user: _selectedUser),
-          )
-      ],
-      onPopPage: (route, result) {
-        if (!route.didPop(result)) return false;
-
-        if (_selectedUser != null)
-          setState(() {
-            _selectedUser = null;
-          });
-
-        return true;
+            key: ValueKey('UsersPage'),
+            child: UsersPage(
+              users: state.users,
+            ),
+          ),
+          if (selectedUser != null)
+            MaterialPage(
+              key: ValueKey(selectedUser),
+              child: UserDetailsPage(user: selectedUser),
+            ),
+        ];
       },
     );
-  }
-
-  void _userPressed(user) {
-    setState(() {
-      _selectedUser = user;
-    });
   }
 }
